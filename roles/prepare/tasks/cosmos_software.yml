@@ -26,9 +26,26 @@
     owner: root
     group: root
     mode: '0755'
+- name: Clone a github repository
+  git:
+    repo: https://github.com/cosmos/cosmos-sdk.git
+    dest: '{{ user_dir }}/cosmos-sdk/'
+    clone: yes
+    update: yes
+    version: 'cosmovisor/{{ cosmovisor_version }}'
 
-- name: Go get cosmovisor
-  command: 'go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@{{ cosmovisor_version }}'
+- name: Creates directory
+  file:
+    path: '{{ user_dir }}/go/bin'
+    state: directory
+
+- name: Install cosmovisor
+  command: '{{ item }}'
+  args:
+    chdir: '{{ user_dir }}/cosmos-sdk/cosmovisor'
+  with_items:
+    - make cosmovisor
+    - cp cosmovisor {{ user_dir }}/go/bin/cosmovisor
   environment:
     PATH: '{{ path }}'
     GOPATH: '{{ user_dir }}/go'
